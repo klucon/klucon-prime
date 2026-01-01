@@ -2,8 +2,7 @@ import os
 import time
 import bcrypt
 import json
-import StaticFiles
-from fastapi.staticfiles
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
