@@ -1,48 +1,49 @@
-<nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-    <div class="sidebar-sticky pt-3">
-        <div class="px-4 mb-4">
-            <h5 style="color: #e5a00d; font-weight: 800; letter-spacing: 1px;">PRIME</h5>
-        </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}" href="/dashboard">
-                    <span class="me-2">⊞</span> {{ t.menu_home }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if active_page == 'users' %}active{% endif %}" href="/users">
-                    <span class="me-2">👤</span> {{ t.menu_users }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if active_page == 'settings' %}active{% endif %}" href="/settings">
-                    <span class="me-2">⚙</span> {{ t.menu_settings }}
-                </a>
-            </li>
-        </ul>
+<nav class="sidebar">
+    <div class="brand">PRIME</div>
+    <div class="nav-section">
+        <a href="/dashboard" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+            {{ t.menu_home }}
+        </a>
+        <a href="/users" class="nav-item {% if active_page == 'users' %}active{% endif %}">
+            {{ t.menu_users }}
+        </a>
+        <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+            {{ t.menu_settings }}
+        </a>
     </div>
 </nav>
 
 <style>
     .sidebar {
-        background-color: #1f2326; /* Plex Dark Grey */
-        min-height: 100vh;
-        border-right: 1px solid #111;
+        width: 240px;
+        background-color: rgba(0, 0, 0, 0.4); /* Poloprůhledná černá */
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
     }
-    .nav-link {
-        color: #999 !important;
-        padding: 10px 25px !important;
-        font-weight: 500;
-        transition: 0.2s;
+    .brand {
+        padding: 30px 25px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #e5a00d; /* Plex Orange */
+        letter-spacing: 1.5px;
     }
-    .nav-link:hover {
-        color: #fff !important;
-        background-color: rgba(255,255,255,0.05);
+    .nav-section { display: flex; flex-direction: column; }
+    .nav-item {
+        padding: 12px 25px;
+        color: #999;
+        text-decoration: none;
+        font-size: 15px;
+        transition: 0.1s;
     }
-    .nav-link.active {
-        color: #fff !important;
-        background-color: rgba(229, 160, 13, 0.1);
+    .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #fff;
+    }
+    .nav-item.active {
+        color: #fff;
+        background-color: rgba(229, 160, 13, 0.15); /* Jemně oranžové pozadí */
         border-left: 4px solid #e5a00d;
-        padding-left: 21px !important; /* Kompenzace borderu */
+        padding-left: 21px;
     }
 </style>
