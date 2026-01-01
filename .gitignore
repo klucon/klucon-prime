@@ -1,0 +1,15 @@
+# Lokální konfigurace a data
+config/
+logs/
+cache/
+tmp/
+
+# Python věci
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+
+# Docker věci
+.env
