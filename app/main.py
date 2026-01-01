@@ -76,6 +76,7 @@ async def setup_page(request: Request, db: Session = Depends(get_db)):
 async def do_setup(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     try:
         # Zahashování
+        safe_password = password[:72]
         hashed_pwd = pwd_context.hash(password)
         
         # Vytvoření admina
