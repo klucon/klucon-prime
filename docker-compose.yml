@@ -4,13 +4,14 @@ services:
     container_name: klucon-prime-db
     restart: always
     environment:
-      POSTGRES_USER: prime_user
-      POSTGRES_PASSWORD: prime_password
-      POSTGRES_DB: klucon_prime
+      - TZ=Europe/Prague
+      - POSTGRES_USER=prime_user
+      - POSTGRES_PASSWORD=prime_password
+      - POSTGRES_DB=klucon_prime
     volumes:
       - /mnt/disk-a/klucon-prime/config/db_data:/var/lib/postgresql/data
     networks:
-      - prime_net
+      - klucon_net
 
   klucon-prime:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
@@ -29,10 +30,10 @@ services:
       - /mnt/disk-a/klucon-prime/lang:/app/lang
       - /mnt/disk-a/klucon-prime/config:/app/config
     command: >
-      sh -c "pip install python-multipart passlib bcrypt sqlalchemy psycopg2-binary psutil && /start.sh"
+      sh -c "pip install python-multipart passlib bcrypt sqlalchemy psycopg2-binary psutil distro && /start.sh"
     networks:
-      - prime_net
+      - klucon_net
 
 networks:
-  prime_net:
+  klucon_net:
     driver: bridge
