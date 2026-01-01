@@ -1,6 +1,4 @@
 import os
-import psutil
-import platform
 import time
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -10,8 +8,15 @@ from sqlalchemy import create_engine, Column, Integer, String, JSON
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy.exc import OperationalError
 
+# IMPORT TVÉHO NOVÉHO MODULU
+try:
+    from .hw_check import get_sys_info
+except ImportError:
+    # Záloha pro případ, že bys spouštěl skript jinak než jako modul
+    from hw_check import get_sys_info
+
 # --- KONFIGURACE ---
-VERSION = "0.0.3"
+VERSION = "0.0.4"
 DB_URL = os.getenv("DB_URL", "postgresql://prime_user:prime_password@db/klucon_prime")
 
 # --- DATABÁZE A MODELY ---
@@ -35,17 +40,15 @@ def init_db():
     _engine = create_engine(DB_URL)
     for i in range(10):
         try:
-            # Test připojení
             connection = _engine.connect()
             connection.close()
-            # Vytvoření tabulek pokud neexistují
             Base.metadata.create_all(bind=_engine)
-            print(f"--- DATABASE CONNECTED (v{VERSION}) ---")
+            print(f"--- KLUCON PRIME DB: CONNECTED (v{VERSION}) ---")
             return _engine
         except OperationalError:
-            print(f"Databáze se připravuje... (pokus {i+1}/10)")
+            print(f"Čekám na databázi... (pokus {i+1}/10)")
             time.sleep(3)
-    raise Exception("Chyba: Nepodařilo se připojit k PostgreSQL.")
+    raise Exception("Kritická chyba: PostgreSQL není dostupný.")
 
 engine = init_db()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -54,7 +57,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 app = FastAPI(title="KLUCON PRIME")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 templates = Jinja2Templates(directory="templates")
-templates.env.add_extension('jinja2.ext.do')
 
 # Dependency pro získání DB session
 def get_db():
@@ -64,41 +66,32 @@ def get_db():
     finally:
         db.close()
 
-def get_sys_info():
-    return {
-        "os": f"{platform.system()} {platform.release()}",
-        "cpu": f"{psutil.cpu_count(logical=False)} jader, {platform.processor()}",
-        "ram": f"{round(psutil.virtual_memory().total / (1024**3), 2)} GB",
-        "ver": VERSION
-    }
-
 # --- ROUTY ---
 
 @app.get("/setup", response_class=HTMLResponse)
 async def setup_page(request: Request, db: Session = Depends(get_db)):
-    # Pokud už admin existuje, nepouštět do setupu
+    # Pokud už admin existuje v DB, nepouštět do setupu
     if db.query(User).first():
         return RedirectResponse(url="/")
     
+    # Získání HW dat z tvého nového souboru hw_check.py
+    sys_data = get_sys_info(VERSION)
+    
     return templates.TemplateResponse("setup.html", {
         "request": request, 
-        "sys": get_sys_info(),
-        "t": {
-            "setup_title": "PRIME Setup", 
-            "btn_finish_setup": "DOKONČIT A SOUHLASIT"
-        }
+        "sys": sys_data
     })
 
 @app.post("/do-setup")
 async def do_setup(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    # Zahashování hesla
+    # 1. Zahashování hesla
     hashed_pwd = pwd_context.hash(password)
     
-    # Vytvoření admina
+    # 2. Vytvoření admina
     new_user = User(username=username, hashed_password=hashed_pwd, role="admin")
     db.add(new_user)
     
-    # Základní systémové nastavení
+    # 3. Základní systémové nastavení (moduly)
     default_settings = SystemSetting(
         key="core", 
         value={
@@ -108,6 +101,7 @@ async def do_setup(username: str = Form(...), password: str = Form(...), db: Ses
     )
     db.add(default_settings)
     
+    # 4. Uložení a přesměrování
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 
@@ -120,23 +114,16 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     
     settings = db.query(SystemSetting).filter(SystemSetting.key == "core").first()
     
-    # Dočasné texty pro Dashboard (dokud neuděláme lang soubory v DB)
+    # Zatím statické texty pro Dashboard
     t = {
-        "welcome": "Vítejte",
-        "dashboard": "Nástěnka",
-        "settings": "Nastavení",
-        "users_man": "Uživatelé",
-        "no_modules_title": "Žádné aktivní moduly",
-        "no_modules_text": "Vypadá to, že zatím nemáte aktivovaný žádný modul.",
-        "btn_install_mods": "Přejít do nastavení"
+        "welcome": f"Vítej, {user.username}",
+        "status": "Systém běží v pořádku",
+        "ver": VERSION
     }
     
     return templates.TemplateResponse("index.html", {
         "request": request, 
-        "config": {
-            "admin": user, 
-            "system": {"version": VERSION}, 
-            "modules": settings.value["modules"]
-        },
+        "user": user,
+        "config": settings.value if settings else {},
         "t": t
     })
