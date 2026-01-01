@@ -159,4 +159,4 @@ return templates.TemplateResponse("index.html", {
         "t": t,
         "active_page": "dashboard",  # Tímto řekneme menu, co má svítit
         "ver": VERSION
-    })
+})
