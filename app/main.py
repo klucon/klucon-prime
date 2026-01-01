@@ -74,24 +74,38 @@ async def setup_page(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/do-setup")
 async def do_setup(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    hashed_pwd = pwd_context.hash(password)
-    new_user = User(username=username, hashed_password=hashed_pwd, role="admin")
-    db.add(new_user)
-    
-    default_settings = SystemSetting(
-        key="core", 
-        value={"lang": "cs_CZ", "modules": {"movies": False, "series": False, "iptv": False}}
-    )
-    db.add(default_settings)
-    db.commit()
-    return RedirectResponse(url="/", status_code=303)
+    try:
+        # Zahashování
+        hashed_pwd = pwd_context.hash(password)
+        
+        # Vytvoření admina
+        new_user = User(username=username, hashed_password=hashed_pwd, role="admin")
+        db.add(new_user)
+        
+        # Základní nastavení
+        default_settings = SystemSetting(
+            key="core", 
+            value={"lang": "cs_CZ", "modules": {"movies": False, "series": False, "iptv": False}}
+        )
+        db.add(default_settings)
+        
+        db.commit()
+        print(f"--- SETUP: Admin '{username}' vytvořen ---")
+        
+        return RedirectResponse(url="/", status_code=303)
+    except Exception as e:
+        db.rollback()
+        print(f"--- SETUP CHYBA: {e} ---")
+        return HTMLResponse(content=f"Chyba při instalaci: {e}", status_code=500)
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request, db: Session = Depends(get_db)):
+    # 1. KONTROLA: Pokud v DB není žádný uživatel, VŽDY jdi na /setup
     user = db.query(User).first()
     if not user:
-        return RedirectResponse(url="/setup")
+        return RedirectResponse(url="/setup", status_code=303)
     
+    # 2. Pokud uživatel existuje, načti nastavení
     settings = db.query(SystemSetting).filter(SystemSetting.key == "core").first()
     
     return templates.TemplateResponse("index.html", {
