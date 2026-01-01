@@ -1,71 +1,87 @@
 import os
-import json
-from fastapi import FastAPI, Request, Form
+import psutil
+import platform
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
+from sqlalchemy import create_all_models, create_engine, Column, Integer, String, Boolean, JSON
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
 
+# Nastavení
+VERSION = "0.0.2"
+DB_URL = os.getenv("DB_URL", "postgresql://prime_user:prime_password@db/klucon_prime")
+
+# Databáze
+engine = create_engine(DB_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# --- MODELY ---
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String, default="admin")
+
+class SystemSetting(Base):
+    __tablename__ = "settings"
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, unique=True)
+    value = Column(JSON)
+
+Base.metadata.create_all(bind=engine)
+
+# --- APLIKACE ---
 app = FastAPI(title="KLUCON PRIME")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Cesty relativní k běžící aplikaci
-CONFIG_FILE = "config/settings.json"
-LANG_DIR = "lang"
-
 templates = Jinja2Templates(directory="templates")
 templates.env.add_extension('jinja2.ext.do')
 
-def get_config():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return None
+# Dependency pro DB
+def get_db():
+    db = SessionLocal()
+    try: yield db
+    finally: db.close()
 
-def load_lang(lang_code="cs_CZ"):
-    # Načte core + dynamicky komponenty
-    base_path = f"{LANG_DIR}/{lang_code}"
-    t = {}
-    if os.path.exists(f"{base_path}/core.json"):
-        with open(f"{base_path}/core.json", "r", encoding="utf-8") as f:
-            t.update(json.load(f))
-    
-    comp_path = f"{base_path}/components"
-    if os.path.exists(comp_path):
-        t["components"] = {}
-        for file in os.listdir(comp_path):
-            if file.endswith(".json"):
-                name = file.replace(".json", "")
-                with open(f"{comp_path}/{file}", "r", encoding="utf-8") as f:
-                    t["components"][name] = json.load(f)
-    return t
+def get_sys_info():
+    return {
+        "os": f"{platform.system()} {platform.release()}",
+        "cpu": f"{psutil.cpu_count(logical=False)} jader {platform.processor()}",
+        "ram": f"{round(psutil.virtual_memory().total / (1024**3), 2)} GB",
+        "ver": VERSION
+    }
 
-@app.middleware("http")
-async def check_setup(request: Request, call_next):
-    config = get_config()
-    if not config and request.url.path not in ["/setup", "/do-setup"] and not request.url.path.startswith("/static"):
-        return RedirectResponse(url="/setup")
-    return await call_next(request)
-
+# --- ROUTY ---
 @app.get("/setup", response_class=HTMLResponse)
-async def setup(request: Request):
-    t = load_lang("cs_CZ")
-    return templates.TemplateResponse("setup.html", {"request": request, "t": t})
+async def setup(request: Request, db: Session = Depends(get_db)):
+    if db.query(User).first(): return RedirectResponse(url="/")
+    return templates.TemplateResponse("setup.html", {
+        "request": request, 
+        "sys": get_sys_info(),
+        "t": {"setup_title": "PRIME Setup", "btn_finish_setup": "DOKONČIT A SOUHLASIT"}
+    })
 
 @app.post("/do-setup")
-async def do_setup(username: str = Form(...), password: str = Form(...)):
+async def do_setup(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     hashed_pwd = pwd_context.hash(password)
-    config = {
-        "system": {"app_name": "KLUCON PRIME", "version": "0.0.1", "lang": "cs_CZ"},
-        "admin": {"username": username, "password": hashed_pwd},
-        "modules": {"movies": False, "series": False}
-    }
-    os.makedirs("config", exist_ok=True)
-    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        json.dump(config, f, indent=4, ensure_ascii=False)
+    new_user = User(username=username, hashed_password=hashed_pwd, role="admin")
+    db.add(new_user)
+    # Základní nastavení
+    default_settings = SystemSetting(key="core", value={"lang": "cs_CZ", "modules": {"movies": False}})
+    db.add(default_settings)
+    db.commit()
     return RedirectResponse(url="/", status_code=303)
 
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
-    config = get_config()
-    t = load_lang(config["system"]["lang"])
-    return templates.TemplateResponse("index.html", {"request": request, "t": t, "config": config})
+async def index(request: Request, db: Session = Depends(get_db)):
+    user = db.query(User).first()
+    if not user: return RedirectResponse(url="/setup")
+    settings = db.query(SystemSetting).filter(SystemSetting.key == "core").first()
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "config": {"admin": user, "system": {"version": VERSION}, "modules": settings.value["modules"]},
+        "t": {"welcome": "Vítejte", "dashboard": "Nástěnka", "no_modules_title": "Žádné moduly"}
+    })
