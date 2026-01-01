@@ -1,0 +1,19 @@
+{
+    "app_name": "KLUCON PRIME",
+    "dashboard": "Nástěnka",
+    "settings": "Nastavení",
+    "users_man": "Uživatelé",
+    "my_profile": "Můj profil",
+    "logout": "Odhlásit",
+    "welcome": "Vítejte",
+    "save": "Uložit změny",
+    "no_modules_title": "Žádné aktivní moduly",
+    "no_modules_text": "Vypadá to, že zatím nemáte nainstalovaný nebo aktivovaný žádný modul.",
+    "btn_install_mods": "Nainstalovat moduly",
+    "status_admin": "Administrátor",
+    "setup_title": "Průvodce instalací",
+    "setup_welcome": "Vítejte v KLUCON PRIME. Nastavte si prosím administrátorský účet.",
+    "username": "Uživatelské jméno",
+    "password": "Heslo",
+    "btn_finish_setup": "Dokončit instalaci"
+}
