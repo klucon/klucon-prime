@@ -8,9 +8,9 @@ services:
       POSTGRES_PASSWORD: prime_password
       POSTGRES_DB: klucon_prime
     volumes:
-      - ./config/db_data:/var/lib/postgresql/data
+      - /mnt/disk-a/klucon-prime/config/db_data:/var/lib/postgresql/data
     networks:
-      - klucon_net
+      - prime_net
 
   klucon-prime:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
@@ -24,14 +24,15 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./app:/app
-      - ./templates:/app/templates
-      - ./lang:/app/lang
-      - ./config:/app/config
-    # Přidány knihovny: sqlalchemy (ORM), psycopg2 (ovladač Postgres), psutil (HW info)
+      - /mnt/disk-a/klucon-prime/app:/app
+      - /mnt/disk-a/klucon-prime/templates:/app/templates
+      - /mnt/disk-a/klucon-prime/lang:/app/lang
+      - /mnt/disk-a/klucon-prime/config:/app/config
     command: >
       sh -c "pip install python-multipart passlib bcrypt sqlalchemy psycopg2-binary psutil && /start.sh"
+    networks:
+      - prime_net
 
 networks:
-  klucon_net:
-    external: true
+  prime_net:
+    driver: bridge
