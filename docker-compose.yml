@@ -29,8 +29,9 @@ services:
       - /mnt/disk-a/klucon-prime/templates:/app/templates
       - /mnt/disk-a/klucon-prime/lang:/app/lang
       - /mnt/disk-a/klucon-prime/config:/app/config
+    # DŮLEŽITÉ: Vymazán passlib, přidán bcrypt a distro pro HW scan
     command: >
-      sh -c "pip install python-multipart passlib==1.7.4 bcrypt==4.0.1 sqlalchemy psycopg2-binary psutil distro && /start.sh"
+      sh -c "pip install python-multipart bcrypt sqlalchemy psycopg2-binary psutil distro && /start.sh"
     networks:
       - klucon_net
 
