@@ -2,47 +2,76 @@
 <html lang="cs" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <title>PRIME Setup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KLUCON PRIME | Instalace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
     <style>
-        body { background-color: #050505; height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; }
-        .setup-card { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 20px; width: 100%; max-width: 450px; padding: 40px; }
-        .hw-info { font-size: 0.85rem; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; }
+        body { background-color: #050505; color: #eee; font-family: 'Inter', -apple-system, sans-serif; min-height: 100vh; display: flex; align-items: center; }
+        .setup-container { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 20px; padding: 40px; width: 95%; max-width: 1200px; margin: auto; }
+        .col-setup { border-right: 1px solid #1f1f1f; padding: 0 30px; }
+        .col-last { padding: 0 30px; display: flex; flex-direction: column; justify-content: center; }
+        .hw-box { background: #161616; padding: 20px; border-radius: 12px; border: 1px solid #222; }
+        .hw-label { font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+        .hw-value { font-size: 0.9rem; color: #ddd; margin-bottom: 12px; display: block; border-bottom: 1px solid #1f1f1f; padding-bottom: 5px; }
+        .hw-value:last-child { border-bottom: none; }
+        .btn-prime { background-color: #e50914; border: none; font-weight: 800; letter-spacing: 1px; padding: 15px; transition: 0.3s; }
+        .btn-prime:hover { background-color: #b20710; transform: translateY(-2px); }
+        .title-red { color: #e50914; font-weight: 900; letter-spacing: -1px; }
     </style>
 </head>
 <body>
-    <div class="container d-flex justify-content-center">
-        <div class="setup-card shadow-lg">
-            <h2 class="text-danger fw-bold text-center mb-2">PRIME</h2>
-            <p class="text-muted text-center small mb-4">Verze {{ sys.ver }}</p>
-            
-            <div class="hw-info p-3 mb-4">
-                <div class="text-secondary small mb-2 border-bottom border-secondary pb-1">Detekovaný hardware:</div>
-                <div class="text-light">
-                    <i class="bi bi-cpu me-2"></i> {{ sys.cpu }}<br>
-                    <i class="bi bi-memory me-2"></i> {{ sys.ram }} RAM<br>
-                    <i class="bi bi-server me-2"></i> {{ sys.os }}
-                </div>
-            </div>
-
-            <form action="/do-setup" method="post">
+    <div class="setup-container shadow-lg">
+        <div class="text-center mb-5">
+            <h1 class="title-red m-0">KLUCON PRIME</h1>
+            <p class="text-muted small uppercase">Průvodce první instalací systému • Verze {{ sys.ver }}</p>
+        </div>
+        
+        <form action="/do-setup" method="post" class="row align-items-stretch">
+            <div class="col-md-4 col-setup">
+                <h5 class="mb-4 text-white"><i class="bi bi-person-badge me-2 text-danger"></i>Administrátor</h5>
+                <p class="text-muted small">Vytvořte si hlavní účet pro správu serveru a disků.</p>
                 <div class="mb-3">
-                    <label class="form-label small text-muted">Admin uživatelské jméno</label>
-                    <input type="text" name="username" class="form-control bg-dark border-secondary text-white" required>
+                    <label class="form-label small text-muted">Uživatelské jméno</label>
+                    <input type="text" name="username" class="form-control bg-dark border-secondary text-white shadow-none" placeholder="Např. klucon" required>
                 </div>
                 <div class="mb-4">
                     <label class="form-label small text-muted">Heslo</label>
-                    <input type="password" name="password" class="form-control bg-dark border-secondary text-white" required>
+                    <input type="password" name="password" class="form-control bg-dark border-secondary text-white shadow-none" required>
                 </div>
-                
-                <p class="text-muted text-center mb-4" style="font-size: 0.75rem;">
-                    Dokončením instalace souhlasíte s anonymním sběrem výše uvedených dat pro účely optimalizace systému KLUCON PRIME.
-                </p>
-                
-                <button type="submit" class="btn btn-danger w-100 fw-bold py-2">DOKONČIT A SOUHLASIT</button>
-            </form>
-        </div>
+            </div>
+
+            <div class="col-md-4 col-setup">
+                <h5 class="mb-4 text-white"><i class="bi bi-cpu me-2 text-danger"></i>Diagnostika HW</h5>
+                <div class="hw-box">
+                    <span class="hw-label">Platforma</span>
+                    <span class="hw-value">{{ sys.arch }}</span>
+
+                    <span class="hw-label">Procesor</span>
+                    <span class="hw-value">{{ sys.cpu }}</span>
+                    
+                    <span class="hw-label">Jádra a vlákna</span>
+                    <span class="hw-value">{{ sys.cores }}</span>
+                    
+                    <span class="hw-label">Operační paměť</span>
+                    <span class="hw-value">{{ sys.ram }}</span>
+                    
+                    <span class="hw-label">Operační systém</span>
+                    <span class="hw-value">{{ sys.os }}</span>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-last">
+                <h5 class="mb-4 text-white"><i class="bi bi-shield-check me-2 text-danger"></i>Souhlas</h5>
+                <div class="alert alert-dark border-secondary small text-muted py-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Kliknutím na tlačítko níže souhlasíte s anonymním sběrem technických dat (CPU, OS, RAM) za účelem optimalizace systému KLUCON PRIME pro váš hardware.
+                </div>
+                <button type="submit" class="btn btn-prime btn-lg w-100 shadow mt-auto">
+                    SOUHLASÍM A DOKONČIT
+                </button>
+            </div>
+        </form>
     </div>
 </body>
 </html>
