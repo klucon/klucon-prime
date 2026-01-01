@@ -1,6 +1,8 @@
 import os
 import time
 import bcrypt
+import json
+from pathlib import Path
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -15,7 +17,7 @@ except:
     from hw_check import get_sys_info
 
 # --- KONFIGURACE ---
-VERSION = "0.0.6"
+VERSION = "0.0.7"
 DB_URL = os.getenv("DB_URL", "postgresql://prime_user:prime_password@db/klucon_prime")
 
 # --- DATABÁZE A MODELY ---
@@ -40,6 +42,22 @@ def hash_password(password: str) -> str:
     pwd_bytes = password.encode('utf-8')[:72]
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(pwd_bytes, salt).decode('utf-8')
+
+# --- FUNKCE PRO NAČTENÍ JAZYKA ---
+def load_language(locale="cs_CZ", module="core"):
+    # Cesta odpovídá lang/cs_CZ/core.json
+    file_path = Path(f"lang/{locale}/{module}.json")
+    
+    if file_path.exists():
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Chyba při čtení jazykového souboru: {e}")
+            return {}
+    else:
+        print(f"Jazykový soubor nenalezen na: {file_path}")
+        return {}
 
 # --- INICIALIZACE DB ---
 engine = create_engine(DB_URL)
@@ -120,8 +138,12 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse(url="/setup")
     
+    # Načtení textů z tvého specifického umístění
+    t = load_language("cs_CZ", "core")
+    
     return templates.TemplateResponse("index.html", {
         "request": request, 
         "user": user,
-        "t": {"welcome": f"Vítej, {user.username}", "ver": VERSION}
+        "t": t,
+        "ver": VERSION
     })
