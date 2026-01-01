@@ -1,0 +1,22 @@
+services:
+  klucon-prime:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
+    container_name: klucon-prime
+    restart: always
+    environment:
+      - TZ=Europe/Prague
+    ports:
+      - "8000:80"
+    volumes:
+      - ./app:/app
+      - ./templates:/app/templates
+      - ./lang:/app/lang
+      - ./config:/app/config
+      - ./logs:/app/logs
+    command: >
+      sh -c "pip install python-multipart passlib bcrypt && /start.sh"
+
+networks:
+  default:
+    name: klucon_net
+    external: true
