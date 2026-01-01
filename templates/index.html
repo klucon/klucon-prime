@@ -1,37 +1,58 @@
 <!DOCTYPE html>
-<html lang="cs" data-bs-theme="dark">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>{{ t.app_name }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KLUCON PRIME - {{ t.menu_home }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        :root { --accent: #e50914; --bg-main: #050505; --bg-card: #0f0f0f; --border: #1f1f1f; }
-        body { background-color: var(--bg-main); color: #fff; }
-        .sidebar { background: var(--bg-card); min-height: 100vh; border-right: 1px solid var(--border); position: fixed; width: 16.6%; }
-        .main-content { margin-left: 16.6%; }
-        .nav-link { color: #888; padding: 12px 20px; border-left: 3px solid transparent; }
-        .nav-link.active { color: #fff; background: #1a1a1a; border-left: 3px solid var(--accent); }
+        /* Základní layout pro rozdělení Sidebar + Obsah */
+        body { display: flex; margin: 0; font-family: sans-serif; background: #f4f4f9; }
+        .main-container { display: flex; width: 100%; min-height: 100vh; }
+        .content { flex-grow: 1; padding: 20px; }
+        .empty-state { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            text-align: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .version-tag { position: fixed; bottom: 10px; right: 10px; color: #888; font-size: 0.8em; }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-2 p-0 sidebar">
-                <div class="p-4"><h3 class="fw-bold text-danger">PRIME</h3></div>
-                <nav class="nav flex-column">
-                    <a href="/" class="nav-link active"><i class="bi bi-grid-1x2 me-2"></i> {{ t.dashboard }}</a>
-                    <a href="/users" class="nav-link"><i class="bi bi-people me-2"></i> {{ t.users_man }}</a>
-                    <a href="/settings" class="nav-link"><i class="bi bi-gear me-2"></i> {{ t.settings }}</a>
-                </nav>
-            </div>
-            <div class="col-md-10 p-5 main-content text-center mt-5">
-                <i class="bi bi-box-seam display-1 text-secondary mb-4"></i>
-                <h2 class="fw-bold">{{ t.no_modules_title }}</h2>
-                <p class="text-muted">{{ t.no_modules_text }}</p>
-                <a href="/settings" class="btn btn-danger px-5 fw-bold mt-3">{{ t.btn_install_mods }}</a>
-            </div>
-        </div>
+    <div class="main-container">
+        {% include 'sidebar.html' %}
+
+        <main class="content">
+            <header>
+                <h1>{{ t.menu_home }}</h1>
+                <p>Vítejte v systému, {{ user.username }}</p>
+            </header>
+
+            <section class="dashboard-status">
+                {% if not modules or (not modules.movies and not modules.iptv) %}
+                    <div class="empty-state">
+                        <h3>Žádné aktivní moduly</h3>
+                        <p>{{ t.module_status_empty }}</p>
+                        <br>
+                        <a href="/settings" class="btn-link">Přejít do nastavení</a>
+                    </div>
+                {% else %}
+                    <div class="module-grid">
+                        {% if modules.movies %}
+                            <div class="card"><h3>{{ t.menu_movies }}</h3></div>
+                        {% endif %}
+                        {% if modules.iptv %}
+                            <div class="card"><h3>{{ t.menu_iptv }}</h3></div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </section>
+        </main>
     </div>
+
+    <div class="version-tag">v{{ ver }}</div>
 </body>
 </html>
