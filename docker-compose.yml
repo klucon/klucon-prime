@@ -29,6 +29,7 @@ services:
       - ./templates:/app/templates
       - ./lang:/app/lang
       - ./config:/app/config
+      - ./static:/app/static
       - /mnt/disk-c:/mnt/disk-c:ro # Připojení tvých dat jen pro čtení
     command: >
       sh -c "pip install python-multipart bcrypt sqlalchemy psycopg2-binary psutil distro && /start.sh"
