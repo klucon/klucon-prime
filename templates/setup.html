@@ -2,22 +2,45 @@
 <html lang="cs" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <title>{{ t.setup_title }}</title>
+    <title>PRIME Setup</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
     <style>
-        body { background-color: #050505; height: 100vh; display: flex; align-items: center; }
-        .setup-card { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 20px; width: 100%; max-width: 400px; padding: 40px; }
+        body { background-color: #050505; height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; }
+        .setup-card { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 20px; width: 100%; max-width: 450px; padding: 40px; }
+        .hw-info { font-size: 0.85rem; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; }
     </style>
 </head>
 <body>
     <div class="container d-flex justify-content-center">
-        <div class="setup-card shadow-lg text-center">
-            <h2 class="text-danger fw-bold mb-4">PRIME</h2>
-            <p class="text-muted mb-4">{{ t.setup_welcome }}</p>
+        <div class="setup-card shadow-lg">
+            <h2 class="text-danger fw-bold text-center mb-2">PRIME</h2>
+            <p class="text-muted text-center small mb-4">Verze {{ sys.ver }}</p>
+            
+            <div class="hw-info p-3 mb-4">
+                <div class="text-secondary small mb-2 border-bottom border-secondary pb-1">Detekovaný hardware:</div>
+                <div class="text-light">
+                    <i class="bi bi-cpu me-2"></i> {{ sys.cpu }}<br>
+                    <i class="bi bi-memory me-2"></i> {{ sys.ram }} RAM<br>
+                    <i class="bi bi-server me-2"></i> {{ sys.os }}
+                </div>
+            </div>
+
             <form action="/do-setup" method="post">
-                <input type="text" name="username" class="form-control mb-3 bg-dark border-secondary text-white" placeholder="{{ t.username }}" required>
-                <input type="password" name="password" class="form-control mb-4 bg-dark border-secondary text-white" placeholder="{{ t.password }}" required>
-                <button type="submit" class="btn btn-danger w-100 fw-bold">{{ t.btn_finish_setup }}</button>
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Admin uživatelské jméno</label>
+                    <input type="text" name="username" class="form-control bg-dark border-secondary text-white" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small text-muted">Heslo</label>
+                    <input type="password" name="password" class="form-control bg-dark border-secondary text-white" required>
+                </div>
+                
+                <p class="text-muted text-center mb-4" style="font-size: 0.75rem;">
+                    Dokončením instalace souhlasíte s anonymním sběrem výše uvedených dat pro účely optimalizace systému KLUCON PRIME.
+                </p>
+                
+                <button type="submit" class="btn btn-danger w-100 fw-bold py-2">DOKONČIT A SOUHLASIT</button>
             </form>
         </div>
     </div>
