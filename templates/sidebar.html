@@ -1,0 +1,24 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <span class="brand">PRIME</span>
+    </div>
+    <nav class="sidebar-nav">
+        <ul>
+            <li>
+                <a href="/dashboard" class="{% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="icon-home"></i> {{ t.menu_home }}
+                </a>
+            </li>
+            <li>
+                <a href="/users" class="{% if active_page == 'users' %}active{% endif %}">
+                    <i class="icon-users"></i> {{ t.menu_users }}
+                </a>
+            </li>
+            <li>
+                <a href="/settings" class="{% if active_page == 'settings' %}active{% endif %}">
+                    <i class="icon-settings"></i> {{ t.menu_settings }}
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>
