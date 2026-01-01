@@ -2,13 +2,13 @@
     <div class="brand">PRIME</div>
     <div class="nav-section">
         <a href="/dashboard" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
-            {{ t.menu_home }}
+            {{ t.menu_home or "Nástěnka" }}
         </a>
         <a href="/users" class="nav-item {% if active_page == 'users' %}active{% endif %}">
-            {{ t.menu_users }}
+            {{ t.menu_users or "Uživatelé" }}
         </a>
         <a href="/settings" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
-            {{ t.menu_settings }}
+            {{ t.menu_settings or "Nastavení" }}
         </a>
     </div>
 </nav>
@@ -16,34 +16,29 @@
 <style>
     .sidebar {
         width: 240px;
-        background-color: rgba(0, 0, 0, 0.4); /* Poloprůhledná černá */
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        flex-direction: column;
+        background-color: rgba(0, 0, 0, 0.6);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        min-height: 100vh;
     }
     .brand {
         padding: 30px 25px;
         font-size: 22px;
         font-weight: 700;
-        color: #e5a00d; /* Plex Orange */
+        color: #e5a00d;
         letter-spacing: 1.5px;
+        text-transform: uppercase;
     }
-    .nav-section { display: flex; flex-direction: column; }
     .nav-item {
+        display: block;
         padding: 12px 25px;
         color: #999;
         text-decoration: none;
-        font-size: 15px;
-        transition: 0.1s;
+        transition: 0.2s;
     }
-    .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-        color: #fff;
-    }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
     .nav-item.active {
         color: #fff;
-        background-color: rgba(229, 160, 13, 0.15); /* Jemně oranžové pozadí */
-        border-left: 4px solid #e5a00d;
-        padding-left: 21px;
+        border-left: 3px solid #e5a00d;
+        background: rgba(229, 160, 13, 0.1);
     }
 </style>
