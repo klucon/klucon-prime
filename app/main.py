@@ -17,7 +17,7 @@ except:
     from hw_check import get_sys_info
 
 # --- KONFIGURACE ---
-VERSION = "0.0.10"
+VERSION = "0.1.1"
 DB_URL = os.getenv("DB_URL", "postgresql://prime_user:prime_password@db/klucon_prime")
 
 # --- DATABÁZE A MODELY ---
@@ -153,9 +153,10 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Načtení textů z tvého specifického umístění
     t = load_language("cs_CZ", "core")
     
-    return templates.TemplateResponse("index.html", {
+return templates.TemplateResponse("index.html", {
         "request": request, 
-        "user": user,
+        "user": user, 
         "t": t,
+        "active_page": "dashboard",  # Tímto řekneme menu, co má svítit
         "ver": VERSION
     })
