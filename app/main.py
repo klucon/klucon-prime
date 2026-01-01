@@ -2,6 +2,8 @@ import os
 import time
 import bcrypt
 import json
+import StaticFiles
+from fastapi.staticfiles
 from pathlib import Path
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -17,7 +19,7 @@ except:
     from hw_check import get_sys_info
 
 # --- KONFIGURACE ---
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 DB_URL = os.getenv("DB_URL", "postgresql://prime_user:prime_password@db/klucon_prime")
 
 # --- DATABÁZE A MODELY ---
@@ -76,6 +78,7 @@ engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI(title="KLUCON PRIME")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 def get_db():
