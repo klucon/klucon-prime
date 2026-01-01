@@ -10,6 +10,9 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, Integer, String, JSON
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy.exc import OperationalError
+from fastapi import Form
+from fastapi.responses import RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
 
 # Import HW detekce
 try:
@@ -78,6 +81,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI(title="KLUCON PRIME")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.add_middleware(SessionMiddleware, secret_key="tvuj_tajny_klic_zmen_me")
 templates = Jinja2Templates(directory="templates")
 
 def get_db():
@@ -162,3 +166,25 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "active_page": "dashboard",
         "ver": VERSION
     })
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request, error: str = None):
+    return templates.TemplateResponse("login.html", {"request": request, "error": error})
+
+@app.post("/login")
+async def login(request: Request, username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    # Najdi uživatele v DB
+    user = db.query(User).filter(User.username == username).first()
+    
+    # Pro testování: Zkontroluj heslo (v ostrém provozu použij hashování!)
+    if user and user.password == password:
+        request.session["user_id"] = user.id
+        request.session["username"] = user.username
+        return RedirectResponse(url="/dashboard", status_code=303)
+    
+    return RedirectResponse(url="/login?error=Nesprávné údaje", status_code=303)
+
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/login")
