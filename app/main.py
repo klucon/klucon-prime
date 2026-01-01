@@ -45,18 +45,26 @@ def hash_password(password: str) -> str:
 
 # --- FUNKCE PRO NAČTENÍ JAZYKA ---
 def load_language(locale="cs_CZ", module="core"):
-    # Cesta odpovídá lang/cs_CZ/core.json
-    file_path = Path(f"lang/{locale}/{module}.json")
+    # Získáme absolutní cestu ke složce, kde běží main.py
+    base_path = Path(__file__).parent.parent # Skočíme z /app/ do rootu /
+    file_path = base_path / "lang" / locale / f"{module}.json"
     
+    print(f"DEBUG: Hledám překlady v: {file_path}") # Uvidíme v logu!
+
     if file_path.exists():
         try:
             with open(file_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                print(f"DEBUG: Načteno {len(data)} klíčů z JSONu")
+                return data
         except Exception as e:
-            print(f"Chyba při čtení jazykového souboru: {e}")
+            print(f"DEBUG: Chyba při čtení JSONu: {e}")
             return {}
     else:
-        print(f"Jazykový soubor nenalezen na: {file_path}")
+        print(f"DEBUG: SOUBOR NENALEZEN!")
+        # Zkusíme nouzový výpis obsahu složky lang pro kontrolu
+        if os.path.exists("lang"):
+            print(f"DEBUG: Obsah složky lang: {os.listdir('lang')}")
         return {}
 
 # --- INICIALIZACE DB ---
