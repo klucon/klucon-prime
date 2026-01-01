@@ -3,56 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KLUCON PRIME - {{ t.menu_home }}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>PRIME - {{ t.menu_home }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Základní layout pro rozdělení Sidebar + Obsah */
-        body { display: flex; margin: 0; font-family: sans-serif; background: #f4f4f9; }
-        .main-container { display: flex; width: 100%; min-height: 100vh; }
-        .content { flex-grow: 1; padding: 20px; }
-        .empty-state { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 8px; 
-            text-align: center; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        .version-tag { position: fixed; bottom: 10px; right: 10px; color: #888; font-size: 0.8em; }
+        /* Tady jsi měl pravděpodobně ten svůj "černý" tuning přes Bootstrap */
+        body { background-color: #000; color: #fff; }
+        .sidebar { min-width: 250px; height: 100vh; background: #111; border-right: 1px solid #222; }
+        .nav-link { color: #ccc; }
+        .nav-link.active { color: #00ff88; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="main-container">
+    <div class="d-flex">
         {% include 'sidebar.html' %}
 
-        <main class="content">
-            <header>
-                <h1>{{ t.menu_home }}</h1>
-                <p>Vítejte v systému, {{ user.username }}</p>
-            </header>
-
-            <section class="dashboard-status">
-                {% if not modules or (not modules.movies and not modules.iptv) %}
-                    <div class="empty-state">
-                        <h3>Žádné aktivní moduly</h3>
-                        <p>{{ t.module_status_empty }}</p>
-                        <br>
-                        <a href="/settings" class="btn-link">Přejít do nastavení</a>
-                    </div>
-                {% else %}
-                    <div class="module-grid">
-                        {% if modules.movies %}
-                            <div class="card"><h3>{{ t.menu_movies }}</h3></div>
-                        {% endif %}
-                        {% if modules.iptv %}
-                            <div class="card"><h3>{{ t.menu_iptv }}</h3></div>
-                        {% endif %}
-                    </div>
+        <main class="p-4 w-100">
+            <h1>{{ t.menu_home }}</h1>
+            <hr border-secondary>
+            
+            {% if not modules or (not modules.movies and not modules.iptv) %}
+                <div class="alert alert-dark">
+                    {{ t.module_status_empty }}
+                </div>
+            {% else %}
                 {% endif %}
-            </section>
         </main>
     </div>
-
-    <div class="version-tag">v{{ ver }}</div>
 </body>
 </html>
