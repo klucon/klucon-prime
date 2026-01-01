@@ -153,10 +153,10 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Načtení textů z tvého specifického umístění
     t = load_language("cs_CZ", "core")
     
-return templates.TemplateResponse("index.html", {
+    return templates.TemplateResponse("index.html", {
         "request": request, 
         "user": user, 
         "t": t,
-        "active_page": "dashboard",  # Tímto řekneme menu, co má svítit
+        "active_page": "dashboard",
         "ver": VERSION
-})
+    })
