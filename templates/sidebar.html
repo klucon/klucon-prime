@@ -1,44 +1,25 @@
-<aside class="sidebar">
-    <div class="brand">PRIME</div>
-    <nav>
-        <a href="/dashboard" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
-            <span>⊞</span> {{ t.menu_home }}
-        </a>
-        <a href="/users" class="nav-link {% if active_page == 'users' %}active{% endif %}">
-            <span>👤</span> {{ t.menu_users }}
-        </a>
-        <a href="/settings" class="nav-link {% if active_page == 'settings' %}active{% endif %}">
-            <span>⚙</span> {{ t.menu_settings }}
-        </a>
-    </nav>
-</aside>
-
-<style>
-    .sidebar {
-        width: 250px;
-        background-color: #0a0a0a; /* Skoro černá */
-        border-right: 1px solid #1a1a1a;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-    }
-    .brand {
-        font-size: 24px;
-        font-weight: bold;
-        color: #00ff88;
-        padding: 20px 10px;
-        letter-spacing: 2px;
-    }
-    .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 12px 15px;
-        color: #888;
-        border-radius: 8px;
-        margin-bottom: 5px;
-        transition: 0.2s;
-    }
-    .nav-link:hover { background: #111; color: #fff; }
-    .nav-link.active { background: #00ff88; color: #000; font-weight: bold; }
-</style>
+<div class="sidebar d-flex flex-column p-3">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <span class="fs-4 fw-bold" style="color: #00ff88;">PRIME</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="/dashboard" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+                {{ t.menu_home }}
+            </a>
+        </li>
+        <li>
+            <a href="/users" class="nav-link {% if active_page == 'users' %}active{% endif %}">
+                {{ t.menu_users }}
+            </a>
+        </li>
+        <li>
+            <a href="/settings" class="nav-link {% if active_page == 'settings' %}active{% endif %}">
+                {{ t.menu_settings }}
+            </a>
+        </li>
+    </ul>
+    <hr>
+    <div class="text-muted small">v{{ ver }}</div>
+</div>
