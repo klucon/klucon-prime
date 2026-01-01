@@ -17,14 +17,18 @@ def get_sys_info(version_tag):
     except Exception:
         pass
 
-    # 2. OPERAČNÍ SYSTÉM (Oprava duplicitních jmen)
+# 2. OPERAČNÍ SYSTÉM (Definitivní oprava duplicity)
     os_name = platform.system()
     if os_name == "Linux":
         try:
-            os_pretty = distro.name(pretty=True)
-            codename = distro.codename()
-            # Pokud už je codename v názvu (Debian to tak dělá), nebudeme ho zdvojovat
-            if codename and codename.lower() not in os_pretty.lower():
+            os_pretty = distro.name(pretty=True) # "Debian GNU/Linux 13 (trixie)"
+            codename = distro.codename()         # "trixie"
+            
+            # Pokud OS_PRETTY už obsahuje závorku, vypíšeme ho čistě, 
+            # jinak zkusíme přidat codename, pokud ho známe.
+            if "(" in os_pretty:
+                os_full = os_pretty
+            elif codename:
                 os_full = f"{os_pretty} ({codename})"
             else:
                 os_full = os_pretty
