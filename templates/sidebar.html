@@ -1,15 +1,22 @@
-<div style="width: 250px; background-color: #000; border-right: 1px solid #222; padding: 20px;">
-    <div style="font-size: 24px; font-weight: bold; color: #00ff88; margin-bottom: 30px;">PRIME</div>
-    
-    <div class="nav flex-column">
-        <a href="/dashboard" style="color: {% if active_page == 'dashboard' %}#00ff88{% else %}#888{% endif %}; text-decoration: none; margin-bottom: 15px;">
-            {{ t.menu_home }}
-        </a>
-        <a href="/users" style="color: {% if active_page == 'users' %}#888{% endif %}; text-decoration: none; margin-bottom: 15px;">
-            {{ t.menu_users }}
-        </a>
-        <a href="/settings" style="color: {% if active_page == 'settings' %}#888{% endif %}; text-decoration: none; margin-bottom: 15px;">
-            {{ t.menu_settings }}
-        </a>
+<div class="col-md-3 col-lg-2 d-md-block bg-black sidebar collapse border-end border-secondary">
+    <div class="position-sticky pt-3">
+        <h2 class="h5 px-3 pb-3 text-white">PRIME</h2>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white {% if active_page == 'dashboard' %}fw-bold{% endif %}" href="/dashboard">
+                    {{ t.menu_home }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white {% if active_page == 'users' %}fw-bold{% endif %}" href="/users">
+                    {{ t.menu_users }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white {% if active_page == 'settings' %}fw-bold{% endif %}" href="/settings">
+                    {{ t.menu_settings }}
+                </a>
+            </li>
+        </ul>
     </div>
 </div>
