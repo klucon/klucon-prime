@@ -8,11 +8,10 @@ from sqlalchemy import create_engine, Column, Integer, String, JSON
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy.exc import OperationalError
 
-# IMPORT TVÉHO NOVÉHO MODULU
+# Import tvého opraveného modulu
 try:
     from .hw_check import get_sys_info
 except ImportError:
-    # Záloha pro případ, že bys spouštěl skript jinak než jako modul
     from hw_check import get_sys_info
 
 # --- KONFIGURACE ---
@@ -35,7 +34,6 @@ class SystemSetting(Base):
     key = Column(String, unique=True)
     value = Column(JSON)
 
-# Funkce pro bezpečné připojení k DB při startu
 def init_db():
     _engine = create_engine(DB_URL)
     for i in range(10):
@@ -53,12 +51,10 @@ def init_db():
 engine = init_db()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# --- APLIKACE A ZABEZPEČENÍ ---
 app = FastAPI(title="KLUCON PRIME")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 templates = Jinja2Templates(directory="templates")
 
-# Dependency pro získání DB session
 def get_db():
     db = SessionLocal()
     try:
@@ -70,60 +66,37 @@ def get_db():
 
 @app.get("/setup", response_class=HTMLResponse)
 async def setup_page(request: Request, db: Session = Depends(get_db)):
-    # Pokud už admin existuje v DB, nepouštět do setupu
     if db.query(User).first():
         return RedirectResponse(url="/")
     
-    # Získání HW dat z tvého nového souboru hw_check.py
     sys_data = get_sys_info(VERSION)
-    
-    return templates.TemplateResponse("setup.html", {
-        "request": request, 
-        "sys": sys_data
-    })
+    return templates.TemplateResponse("setup.html", {"request": request, "sys": sys_data})
 
 @app.post("/do-setup")
 async def do_setup(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    # 1. Zahashování hesla
     hashed_pwd = pwd_context.hash(password)
-    
-    # 2. Vytvoření admina
     new_user = User(username=username, hashed_password=hashed_pwd, role="admin")
     db.add(new_user)
     
-    # 3. Základní systémové nastavení (moduly)
     default_settings = SystemSetting(
         key="core", 
-        value={
-            "lang": "cs_CZ", 
-            "modules": {"movies": False, "series": False, "iptv": False}
-        }
+        value={"lang": "cs_CZ", "modules": {"movies": False, "series": False, "iptv": False}}
     )
     db.add(default_settings)
-    
-    # 4. Uložení a přesměrování
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request, db: Session = Depends(get_db)):
-    # Kontrola, zda proběhl setup
     user = db.query(User).first()
     if not user:
         return RedirectResponse(url="/setup")
     
     settings = db.query(SystemSetting).filter(SystemSetting.key == "core").first()
     
-    # Zatím statické texty pro Dashboard
-    t = {
-        "welcome": f"Vítej, {user.username}",
-        "status": "Systém běží v pořádku",
-        "ver": VERSION
-    }
-    
     return templates.TemplateResponse("index.html", {
         "request": request, 
         "user": user,
         "config": settings.value if settings else {},
-        "t": t
+        "t": {"welcome": f"Vítej, {user.username}", "ver": VERSION}
     })
