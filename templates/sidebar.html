@@ -11,6 +11,12 @@
             {{ t.menu_settings or "Nastavení" }}
         </a>
     </div>
+    <div class="nav-section border-top border-secondary mt-auto">
+        <a href="/logout" class="nav-item text-danger">
+            <span class="me-2">logout</span> Odhlásit
+        </a>
+        <div class="px-4 py-2 text-muted small">v{{ ver }}</div>
+    </div>
 </nav>
 
 <style>
