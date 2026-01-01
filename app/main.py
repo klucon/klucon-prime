@@ -18,7 +18,7 @@ except:
     from hw_check import get_sys_info
 
 # --- KONFIGURACE ---
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 DB_URL = os.getenv("DB_URL", "postgresql://prime_user:prime_password@db/klucon_prime")
 
 # --- DATABÁZE A MODELY ---
