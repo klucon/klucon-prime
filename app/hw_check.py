@@ -9,24 +9,33 @@ def get_sys_info(version_tag):
     try:
         if platform.system() == "Linux":
             with open("/proc/cpuinfo", "r") as f:
-                for line in f:
+                content = f.read()
+                for line in content.splitlines():
                     if "model name" in line or "Model" in line:
                         cpu_info = line.split(":")[1].strip()
                         break
     except Exception:
         pass
 
-    # 2. OPERAČNÍ SYSTÉM (Kompletní detekce)
-    if platform.system() == "Linux":
-        os_full = f"{distro.name(pretty=True)}"
-        if distro.codename():
-            os_full += f" ({distro.codename()})"
-    elif platform.system() == "Windows":
+    # 2. OPERAČNÍ SYSTÉM (Oprava duplicitních jmen)
+    os_name = platform.system()
+    if os_name == "Linux":
+        try:
+            os_pretty = distro.name(pretty=True)
+            codename = distro.codename()
+            # Pokud už je codename v názvu (Debian to tak dělá), nebudeme ho zdvojovat
+            if codename and codename.lower() not in os_pretty.lower():
+                os_full = f"{os_pretty} ({codename})"
+            else:
+                os_full = os_pretty
+        except:
+            os_full = "Linux (Neznámá distribuce)"
+    elif os_name == "Windows":
         os_full = f"Windows {platform.release()} (build {platform.version()})"
     else:
-        os_full = f"{platform.system()} {platform.release()}"
+        os_full = f"{os_name} {platform.release()}"
 
-    # 3. STATISTIKY (RAM, Jádra, Architektura)
+    # 3. STATISTIKY
     return {
         "cpu": cpu_info,
         "cores": f"{psutil.cpu_count(logical=False)} fyzických / {psutil.cpu_count(logical=True)} vláken",
