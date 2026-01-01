@@ -1,10 +1,26 @@
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: klucon-prime-db
+    restart: always
+    environment:
+      POSTGRES_USER: prime_user
+      POSTGRES_PASSWORD: prime_password
+      POSTGRES_DB: klucon_prime
+    volumes:
+      - ./config/db_data:/var/lib/postgresql/data
+    networks:
+      - klucon_net
+
   klucon-prime:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
     container_name: klucon-prime
     restart: always
+    depends_on:
+      - db
     environment:
       - TZ=Europe/Prague
+      - DB_URL=postgresql://prime_user:prime_password@db/klucon_prime
     ports:
       - "8000:80"
     volumes:
@@ -12,11 +28,10 @@ services:
       - ./templates:/app/templates
       - ./lang:/app/lang
       - ./config:/app/config
-      - ./logs:/app/logs
+    # Přidány knihovny: sqlalchemy (ORM), psycopg2 (ovladač Postgres), psutil (HW info)
     command: >
-      sh -c "pip install python-multipart passlib bcrypt && /start.sh"
+      sh -c "pip install python-multipart passlib bcrypt sqlalchemy psycopg2-binary psutil && /start.sh"
 
 networks:
-  default:
-    name: klucon_net
+  klucon_net:
     external: true
