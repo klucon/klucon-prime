@@ -17,7 +17,7 @@ except:
     from hw_check import get_sys_info
 
 # --- KONFIGURACE ---
-VERSION = "0.0.8"
+VERSION = "0.0.9"
 DB_URL = os.getenv("DB_URL", "postgresql://prime_user:prime_password@db/klucon_prime")
 
 # --- DATABÁZE A MODELY ---
@@ -45,11 +45,10 @@ def hash_password(password: str) -> str:
 
 # --- FUNKCE PRO NAČTENÍ JAZYKA ---
 def load_language(locale="cs_CZ", module="core"):
-    # Získáme absolutní cestu ke složce, kde běží main.py
-    base_path = Path(__file__).parent.parent # Skočíme z /app/ do rootu /
-    file_path = base_path / "lang" / locale / f"{module}.json"
+    # V Dockeru je absolutní cesta k lang vždy v /app/lang/
+    file_path = Path(f"/app/lang/{locale}/{module}.json")
     
-    print(f"DEBUG: Hledám překlady v: {file_path}") # Uvidíme v logu!
+    print(f"DEBUG: Hledám překlady v: {file_path}")
 
     if file_path.exists():
         try:
@@ -61,10 +60,15 @@ def load_language(locale="cs_CZ", module="core"):
             print(f"DEBUG: Chyba při čtení JSONu: {e}")
             return {}
     else:
-        print(f"DEBUG: SOUBOR NENALEZEN!")
-        # Zkusíme nouzový výpis obsahu složky lang pro kontrolu
-        if os.path.exists("lang"):
-            print(f"DEBUG: Obsah složky lang: {os.listdir('lang')}")
+        print(f"DEBUG: SOUBOR NENALEZEN NA CESTĚ: {file_path.absolute()}")
+        # Kontrola reality - co v tom kontejneru vlastně je?
+        try:
+            root_content = os.listdir("/app")
+            print(f"DEBUG: Obsah /app: {root_content}")
+            if "lang" in root_content:
+                print(f"DEBUG: Obsah /app/lang: {os.listdir('/app/lang')}")
+        except:
+            pass
         return {}
 
 # --- INICIALIZACE DB ---
